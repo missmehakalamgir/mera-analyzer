@@ -6,6 +6,9 @@ import random
 # OpenAI API Key
 openai.api_key = "YOUR_OPENAI_API_KEY"
 
+# Initialize OpenAI Client (NEW SYNTAX)
+client = openai.OpenAI()
+
 # Streamlit UI
 st.title("🎬 AI-Powered Video Title & Thumbnail Generator")
 
@@ -15,26 +18,32 @@ video_topic = st.text_input("📌 Enter your video topic:", "")
 # Generate AI-Based Video Titles
 if st.button("Generate AI Video Title"):
     prompt = f"Generate 5 engaging, SEO-friendly YouTube video titles for: {video_topic}"
-    response = openai.ChatCompletion.create(
+    
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "system", "content": prompt}]
     )
-    titles = response["choices"][0]["message"]["content"]
-    
+
+    titles = response.choices[0].message.content.strip().split("\n")
+
     st.subheader("📢 Suggested Video Titles:")
-    st.write(titles)
+    for title in titles:
+        st.write(f"✅ {title}")
 
 # Generate Thumbnail Text & Colors
 if st.button("Generate Thumbnail Text & Colors"):
     prompt = f"Suggest 3 attention-grabbing phrases & colors for a YouTube thumbnail about: {video_topic}"
-    response = openai.ChatCompletion.create(
+    
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "system", "content": prompt}]
     )
-    thumbnail_suggestions = response["choices"][0]["message"]["content"]
+
+    thumbnail_suggestions = response.choices[0].message.content.strip().split("\n")
 
     st.subheader("🖼️ Suggested Thumbnail Text & Colors:")
-    st.write(thumbnail_suggestions)
+    for suggestion in thumbnail_suggestions:
+        st.write(f"🎨 {suggestion}")
 
 # Thumbnail Generator
 st.subheader("🎨 Create a Simple Thumbnail")
@@ -64,4 +73,3 @@ if uploaded_file:
     if st.button("Save Thumbnail"):
         image.save("thumbnail.png")
         st.success("✅ Thumbnail saved as thumbnail.png")
-
